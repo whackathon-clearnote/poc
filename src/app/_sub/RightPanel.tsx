@@ -12,7 +12,7 @@ const RightPanel = ({ selected, setSummaryOpen }: Props) => {
       {selected ? (
         <Paper sx={{ p: 2 }}>
           <Typography variant="h6">
-            Doctor's Notes for {selected.title}
+            Doctor&apos;s Notes for {selected.title}
           </Typography>
           <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}>
             <Button

@@ -48,30 +48,32 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
               borderRight: "1px solid #ccc",
             }}
           >
-            <Typography variant="h5">Summary</Typography>
-            <Divider sx={{ my: 2 }} />
+            <div>
+              <Typography variant="h5">Summary</Typography>
+              <Divider sx={{ my: 2 }} />
 
-            <Typography variant="subtitle1">Start</Typography>
-            <ul>
-              <li>Metformin 500mg daily</li>
-              <li>Amlodipine 10mg daily</li>
-            </ul>
-
-            <Typography variant="subtitle1">Change</Typography>
-            <ul>
-              <li>Increase Furosemide from 20mg → 40mg</li>
-            </ul>
-
-            <Typography variant="subtitle1">Stop</Typography>
-            <ul>
-              <li>Aspirin 75mg</li>
-            </ul>
+              {Object.entries(summary).map(([section, items]) => (
+                <div key={section}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ textTransform: "capitalize" }}
+                  >
+                    {section}
+                  </Typography>
+                  <ul>
+                    {items.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </Box>
 
           {/* Notes Section - 60% */}
           <Box sx={{ width: "60%", p: 3, overflowY: "auto" }}>
             <Typography variant="h5">
-              Doctor's notes for {selected.title}
+              Doctor&apos;s notes for {selected.title}
             </Typography>
             <Divider sx={{ my: 2 }} />
             <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>

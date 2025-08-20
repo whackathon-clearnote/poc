@@ -8,10 +8,7 @@ export const mockConsultations: Consultation[] = [
     type: "Review",
     title: "Review - 20/08",
     notes: `
-      Mock Doctor's Notes
-      <age> <gender>
-    
-      60kg
+      <MOCK NOTES>
 
       Current Medication History
       Atorvastatin 40mg OM PO
