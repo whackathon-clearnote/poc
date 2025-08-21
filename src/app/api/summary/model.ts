@@ -13,3 +13,14 @@ export type Summary = {
   change: SummaryChunk[];
   stop: SummaryChunk[];
 };
+
+export type Term = {
+  key: string;
+  link: string;
+  description: string;
+};
+
+export type TermResult = {
+  index: number;
+  term: Term;
+};

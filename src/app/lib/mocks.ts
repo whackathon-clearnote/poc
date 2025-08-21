@@ -1,6 +1,7 @@
 import { Consultation } from "@/app/api/patients/[id]/consults/model";
-import { Summary } from "../api/summary/model";
+import { Summary, Term, TermResult } from "../api/summary/model";
 import { v4 as uuidv4 } from "uuid";
+import AhoCorasick from "ahocorasick";
 
 export const mockConsultations: Consultation[] = [
   {
@@ -115,4 +116,46 @@ export const mockSummaries: { [id: number]: Summary } = {
     change: [],
     stop: [],
   },
+};
+
+const terms: { [key: string]: Term } = {
+  amlodipine: {
+    key: "amlodipine",
+    link: "https://en.wikipedia.org/wiki/Amlodipine",
+    description:
+      "Calcium channel blocker medication used to treat high BP, CAD, and variant angina",
+  },
+  aspirin: {
+    key: "aspirin",
+    link: "https://en.wikipedia.org/wiki/Aspirin",
+    description:
+      "NSAID used to reduce pain, fever, and inflammation; antithrombotic",
+  },
+  furosemide: {
+    key: "furosemide",
+    link: "https://en.wikipedia.org/wiki/Furosemide",
+    description:
+      "Loop diuretic used to treat edema due to heart failur, liver scarring, or kidney disease",
+  },
+  metformin: {
+    key: "metformin",
+    link: "https://en.wikipedia.org/wiki/Metformin",
+    description:
+      "Main first-line medication for the treatment of type 2 diabetes",
+  },
+};
+
+const ac = new AhoCorasick(Object.keys(terms).map((t) => t.toLowerCase()));
+export const findTerms = (text: string) => {
+  const results: TermResult[] = [];
+  for (const [endIndex, hits] of ac.search(text.toLowerCase())) {
+    const firstHit = hits[0];
+    results.push({
+      index: endIndex - firstHit.length + 1,
+      term: terms[firstHit],
+    });
+  }
+  results.sort((r1, r2) => r1.index - r2.index);
+  // TODO: ensure results index ranges do not overlap
+  return results;
 };

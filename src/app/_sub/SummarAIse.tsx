@@ -3,16 +3,17 @@ import {
   Dialog,
   Divider,
   IconButton,
+  Link,
   List,
   ListItemButton,
-  ListItemText,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Consultation } from "@/app/api/patients/[id]/consults/model";
 import { Summary, SummaryChunk } from "@/app/api/summary/model";
-import { mockSummaries } from "@/app/lib/mocks";
-import { useState } from "react";
+import { findTerms, mockSummaries } from "@/app/lib/mocks";
+import { useEffect, useState } from "react";
 
 interface SummarAIseSectionProps {
   header: string;
@@ -27,6 +28,27 @@ const SummarAIseSection = ({
   selectedChunk,
   setSelectedChunk,
 }: SummarAIseSectionProps) => {
+  const parseChunk = (content: string) => {
+    const terms = findTerms(content);
+    const parts = [];
+    let i = 0;
+    let j = 0;
+    for (const term of terms) {
+      parts.push(<span key={j}>{content.substring(i, term.index)}</span>);
+      i = term.index + term.term.key.length;
+      parts.push(
+        <Tooltip key={j + 1} arrow title={term.term.description}>
+          <Link href={term.term.link} target="_blank" rel="noreferrer">
+            {content.substring(term.index, i)}
+          </Link>
+        </Tooltip>,
+      );
+      j += 2;
+    }
+    parts.push(content.substring(i));
+    return <Typography variant="body1">{parts}</Typography>;
+  };
+
   return (
     <div key={header}>
       <Typography variant="h6" sx={{ textTransform: "capitalize" }}>
@@ -39,7 +61,7 @@ const SummarAIseSection = ({
             selected={chunk.id === selectedChunk?.id}
             onClick={() => setSelectedChunk(chunk)}
           >
-            <ListItemText primary={chunk.content} />
+            {parseChunk(chunk.content)}
           </ListItemButton>
         ))}
       </List>
@@ -57,6 +79,10 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
   const [highlightedChunk, setHighlightedChunk] = useState<SummaryChunk | null>(
     null,
   );
+
+  useEffect(() => {
+    setHighlightedChunk(null);
+  }, [selected]);
 
   if (!selected) {
     return null; // Don't render dialog if no consultation is selected
