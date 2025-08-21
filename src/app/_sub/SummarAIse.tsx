@@ -1,8 +1,51 @@
-import { Box, Dialog, Divider, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  Divider,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemText,
+  Typography,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Consultation } from "@/app/api/patients/[id]/consults/model";
-import { Summary } from "@/app/api/summary/model";
-import { mockSummary } from "@/app/lib/mocks";
+import { Summary, SummaryChunk } from "@/app/api/summary/model";
+import { mockSummaries } from "@/app/lib/mocks";
+import { useState } from "react";
+
+interface SummarAIseSectionProps {
+  header: string;
+  chunks: SummaryChunk[];
+  selectedChunk?: SummaryChunk | null;
+  setSelectedChunk: (chunk: SummaryChunk) => void;
+}
+
+const SummarAIseSection = ({
+  header,
+  chunks,
+  selectedChunk,
+  setSelectedChunk,
+}: SummarAIseSectionProps) => {
+  return (
+    <div key={header}>
+      <Typography variant="h6" sx={{ textTransform: "capitalize" }}>
+        {header}
+      </Typography>
+      <List>
+        {chunks.map((chunk) => (
+          <ListItemButton
+            key={chunk.id}
+            selected={chunk.id === selectedChunk?.id}
+            onClick={() => setSelectedChunk(chunk)}
+          >
+            <ListItemText primary={chunk.content} />
+          </ListItemButton>
+        ))}
+      </List>
+    </div>
+  );
+};
 
 interface Props {
   selected: Consultation | null;
@@ -11,11 +54,21 @@ interface Props {
 }
 
 const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
+  const [highlightedChunk, setHighlightedChunk] = useState<SummaryChunk | null>(
+    null,
+  );
+
   if (!selected) {
     return null; // Don't render dialog if no consultation is selected
   }
 
-  const summary: Summary = mockSummary;
+  const summary: Summary = mockSummaries[selected.id];
+  if (!summary) {
+    return null;
+  }
+
+  const handleHighlightedChunkChange = (chunk: SummaryChunk) =>
+    setHighlightedChunk(chunk.id === highlightedChunk?.id ? null : chunk);
 
   return (
     <Dialog fullScreen open={summaryOpen} onClose={() => setSummaryOpen(false)}>
@@ -51,22 +104,25 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
             <div>
               <Typography variant="h5">Summary</Typography>
               <Divider sx={{ my: 2 }} />
-
-              {Object.entries(summary).map(([section, items]) => (
-                <div key={section}>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ textTransform: "capitalize" }}
-                  >
-                    {section}
-                  </Typography>
-                  <ul>
-                    {items.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+              {summary["description"] ? (
+                <SummarAIseSection
+                  header="Description"
+                  chunks={summary["description"]}
+                  selectedChunk={highlightedChunk}
+                  setSelectedChunk={handleHighlightedChunkChange}
+                />
+              ) : null}
+              {Object.entries(summary).map(([section, items]) =>
+                ["start", "change", "stop"].includes(section) ? (
+                  <SummarAIseSection
+                    key={section}
+                    header={section}
+                    chunks={items}
+                    selectedChunk={highlightedChunk}
+                    setSelectedChunk={handleHighlightedChunkChange}
+                  />
+                ) : null,
+              )}
             </div>
           </Box>
 
@@ -77,7 +133,34 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
             </Typography>
             <Divider sx={{ my: 2 }} />
             <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
-              {selected?.notes}
+              {highlightedChunk ? (
+                <>
+                  <span style={{ whiteSpace: "pre-line" }}>
+                    {selected.notes.substring(
+                      0,
+                      highlightedChunk.begIndex || 0,
+                    )}
+                  </span>
+                  <span
+                    style={{
+                      whiteSpace: "pre-line",
+                      backgroundColor: "yellow",
+                    }}
+                  >
+                    {selected.notes.substring(
+                      highlightedChunk.begIndex || 0,
+                      highlightedChunk.endIndex || undefined,
+                    )}
+                  </span>
+                  <span style={{ whiteSpace: "pre-line" }}>
+                    {selected.notes.substring(
+                      highlightedChunk.endIndex || selected.notes.length,
+                    )}
+                  </span>
+                </>
+              ) : (
+                selected.notes
+              )}
             </Typography>
           </Box>
         </Box>

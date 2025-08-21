@@ -1,5 +1,6 @@
 import { Consultation } from "@/app/api/patients/[id]/consults/model";
 import { Summary } from "../api/summary/model";
+import { v4 as uuidv4 } from "uuid";
 
 export const mockConsultations: Consultation[] = [
   {
@@ -55,10 +56,63 @@ export const mockConsultations: Consultation[] = [
 ];
 
 export const mockSummary: Summary = {
-  start: ["Metformin 500mg BD", "Amlodipine 10mg OD"],
-  change: [
-    "Increase Furosemide from 20mg → 40mg",
-    "Decrease Amlodipine from 10mg → 5mg",
+  start: [
+    {
+      id: uuidv4(),
+      content: "Metformin 500mg BD",
+      begIndex: 60,
+      endIndex: 139,
+    },
+    {
+      id: uuidv4(),
+      content: "Amlodipine 10mg OD",
+      begIndex: 146,
+      endIndex: 200,
+    },
   ],
-  stop: ["Aspirin 75mg"],
+  change: [
+    {
+      id: uuidv4(),
+      content: "Increase Furosemide from 20mg → 40mg",
+      begIndex: 548,
+      endIndex: 605,
+    },
+    {
+      id: uuidv4(),
+      content: "Decrease Amlodipine from 10mg → 5mg",
+      begIndex: 612,
+      endIndex: 661,
+    },
+  ],
+  stop: [
+    { id: uuidv4(), content: "Aspirin 75mg", begIndex: 669, endIndex: 677 },
+  ],
+};
+
+export const mockSummaries: { [id: number]: Summary } = {
+  1: mockSummary,
+  2: {
+    description: [
+      {
+        id: uuidv4(),
+        content:
+          "Doctor performed a medical examination and noted vital signs.",
+      },
+    ],
+    start: [],
+    change: [],
+    stop: [],
+  },
+  3: {
+    description: [
+      {
+        id: uuidv4(),
+        content:
+          "Doctor performed an initial consult with the patient and discussed symptoms and medical history.",
+      },
+    ],
+    start: [],
+    change: [],
+    stop: [],
+  },
 };
