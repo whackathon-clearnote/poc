@@ -1,5 +1,7 @@
 import {
   Box,
+  Button,
+  ButtonGroup,
   Dialog,
   Divider,
   IconButton,
@@ -121,6 +123,7 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
           {/* Summary Section - 40% */}
           <Box
             sx={{
+              position: "relative",
               width: "40%",
               p: 3,
               overflowY: "auto",
@@ -150,6 +153,10 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
                 ) : null,
               )}
             </div>
+            <ButtonGroup className="absolute p-2 right-0 bottom-0">
+              <Button color="success">Accept</Button>
+              <Button color="error">Reject</Button>
+            </ButtonGroup>
           </Box>
 
           {/* Notes Section - 60% */}
