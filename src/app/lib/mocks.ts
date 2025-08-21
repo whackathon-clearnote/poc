@@ -60,13 +60,13 @@ export const mockSummary: Summary = {
   start: [
     {
       id: uuidv4(),
-      content: "Metformin 500mg BD",
+      content: "Metformin 500mg BD for diabetes",
       begIndex: 60,
       endIndex: 139,
     },
     {
       id: uuidv4(),
-      content: "Amlodipine 10mg OD",
+      content: "Amlodipine 10mg OD for hypertension",
       begIndex: 146,
       endIndex: 200,
     },
@@ -74,13 +74,13 @@ export const mockSummary: Summary = {
   change: [
     {
       id: uuidv4(),
-      content: "Increase Furosemide from 20mg → 40mg",
+      content: "Increase Furosemide from 20mg → 40mg if have leg swelling",
       begIndex: 548,
       endIndex: 605,
     },
     {
       id: uuidv4(),
-      content: "Decrease Amlodipine from 10mg → 5mg",
+      content: "Decrease Amlodipine from 10mg → 5mg if BP < 100/60",
       begIndex: 612,
       endIndex: 661,
     },
@@ -135,13 +135,25 @@ const terms: { [key: string]: Term } = {
     key: "furosemide",
     link: "https://en.wikipedia.org/wiki/Furosemide",
     description:
-      "Loop diuretic used to treat edema due to heart failur, liver scarring, or kidney disease",
+      "Loop diuretic used to treat edema due to heart failure, liver scarring, or kidney disease",
   },
   metformin: {
     key: "metformin",
     link: "https://en.wikipedia.org/wiki/Metformin",
     description:
       "Main first-line medication for the treatment of type 2 diabetes",
+  },
+  diabetes: {
+    key: "diabetes",
+    link: "https://en.wikipedia.org/wiki/Diabetes",
+    description:
+      "Chronic condition that affects the way the body metabolizes sugar (glucose)",
+  },
+  hypertension: {
+    key: "hypertension",
+    link: "https://en.wikipedia.org/wiki/Hypertension",
+    description:
+      "Condition in which the blood pressure in the arteries is persistently elevated",
   },
 };
 
