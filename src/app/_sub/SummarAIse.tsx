@@ -43,7 +43,7 @@ const SummarAIseSection = ({
           <Link href={term.term.link} target="_blank" rel="noreferrer">
             {content.substring(term.index, i)}
           </Link>
-        </Tooltip>,
+        </Tooltip>
       );
       j += 2;
     }
@@ -79,7 +79,7 @@ interface Props {
 
 const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
   const [highlightedChunk, setHighlightedChunk] = useState<SummaryChunk | null>(
-    null,
+    null
   );
 
   useEffect(() => {
@@ -107,15 +107,46 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            p: 2,
-            borderBottom: "1px solid #ccc",
+            px: 3,
+            py: 1.5,
+            borderBottom: "1px solid",
+            borderColor: "rgba(255,255,255,0.1)",
             flexShrink: 0,
+            backgroundColor: "#1E3A8A",
+            color: "white",
+            boxShadow: 3,
           }}
         >
-          <Typography variant="h5">SummarAIser</Typography>
-          <IconButton onClick={() => setSummaryOpen(false)}>
-            <CloseIcon />
-          </IconButton>
+          {/* Title */}
+          <Typography variant="h6" fontWeight={600}>
+            SummarAIser{" "}
+            <Typography
+              component="span"
+              variant="body2"
+              sx={{
+                ml: 1,
+                color: "rgba(255,255,255,0.7)",
+              }}
+            >
+              by ClearNote
+            </Typography>
+          </Typography>
+
+          {/* Action buttons */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton
+              onClick={() => setSummaryOpen(false)}
+              sx={{
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "rgba(255,255,255,0.1)",
+                },
+              }}
+              aria-label="Close"
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
         </Box>
 
         {/* Scrollable Content */}
@@ -150,11 +181,12 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
                     selectedChunk={highlightedChunk}
                     setSelectedChunk={handleHighlightedChunkChange}
                   />
-                ) : null,
+                ) : null
               )}
             </div>
             <ButtonGroup className="absolute p-2 right-0 bottom-0">
               <Button color="success">Accept</Button>
+              <Button color="warning">Edit</Button>
               <Button color="error">Reject</Button>
             </ButtonGroup>
           </Box>
@@ -171,7 +203,7 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
                   <span style={{ whiteSpace: "pre-line" }}>
                     {selected.notes.substring(
                       0,
-                      highlightedChunk.begIndex || 0,
+                      highlightedChunk.begIndex || 0
                     )}
                   </span>
                   <span
@@ -182,12 +214,12 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
                   >
                     {selected.notes.substring(
                       highlightedChunk.begIndex || 0,
-                      highlightedChunk.endIndex || undefined,
+                      highlightedChunk.endIndex || undefined
                     )}
                   </span>
                   <span style={{ whiteSpace: "pre-line" }}>
                     {selected.notes.substring(
-                      highlightedChunk.endIndex || selected.notes.length,
+                      highlightedChunk.endIndex || selected.notes.length
                     )}
                   </span>
                 </>

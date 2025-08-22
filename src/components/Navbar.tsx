@@ -5,7 +5,7 @@ const NavBar = () => {
     <AppBar position="static" sx={{ bgcolor: "darkred" }}>
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          ClearNote POC
+          Epic Systems Simulation
         </Typography>
       </Toolbar>
     </AppBar>
