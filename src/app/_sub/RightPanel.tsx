@@ -1,6 +1,7 @@
 import { Consultation } from "@/app/api/patients/[id]/consults/model";
 import { Box, Button, Paper, Typography } from "@mui/material";
 import { motion } from "motion/react";
+import { useState } from "react";
 
 interface Props {
   selected: Consultation | null;
@@ -8,6 +9,16 @@ interface Props {
 }
 
 const RightPanel = ({ selected, setSummaryOpen }: Props) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleGenerate = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setSummaryOpen(true);
+      setLoading(false);
+    }, 500);
+  };
+
   return (
     <Box sx={{ width: "60%", p: 2 }}>
       {selected ? (
@@ -29,7 +40,8 @@ const RightPanel = ({ selected, setSummaryOpen }: Props) => {
               <Button
                 color="inherit"
                 variant="outlined"
-                onClick={() => setSummaryOpen(true)}
+                loading={loading}
+                onClick={handleGenerate}
                 sx={{ alignSelf: "flex-end" }}
               >
                 Generate Summary
