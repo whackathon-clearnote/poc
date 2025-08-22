@@ -8,6 +8,7 @@ import {
   Link,
   List,
   ListItemButton,
+  Skeleton,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -16,6 +17,7 @@ import { Consultation } from "@/app/api/patients/[id]/consults/model";
 import { Summary, SummaryChunk } from "@/app/api/summary/model";
 import { findTerms, mockSummaries } from "@/app/lib/mocks";
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 
 interface SummarAIseSectionProps {
   header: string;
@@ -57,14 +59,20 @@ const SummarAIseSection = ({
         {header}
       </Typography>
       <List>
-        {chunks.map((chunk) => (
-          <ListItemButton
+        {chunks.map((chunk, i) => (
+          <motion.div
             key={chunk.id}
-            selected={chunk.id === selectedChunk?.id}
-            onClick={() => setSelectedChunk(chunk)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: i * 0.2 }}
           >
-            {parseChunk(chunk.content)}
-          </ListItemButton>
+            <ListItemButton
+              selected={chunk.id === selectedChunk?.id}
+              onClick={() => setSelectedChunk(chunk)}
+            >
+              {parseChunk(chunk.content)}
+            </ListItemButton>
+          </motion.div>
         ))}
       </List>
     </div>
@@ -78,9 +86,17 @@ interface Props {
 }
 
 const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
+  const [loading, setLoading] = useState(true);
   const [highlightedChunk, setHighlightedChunk] = useState<SummaryChunk | null>(
     null
   );
+
+  useEffect(() => {
+    if (summaryOpen) {
+      setLoading(true);
+      setTimeout(() => setLoading(false), 1000);
+    }
+  }, [summaryOpen]);
 
   useEffect(() => {
     setHighlightedChunk(null);
@@ -97,6 +113,49 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
 
   const handleHighlightedChunkChange = (chunk: SummaryChunk) =>
     setHighlightedChunk(chunk.id === highlightedChunk?.id ? null : chunk);
+
+  const summarySection = loading ? (
+    <div>
+      <Typography variant="h3">
+        <Skeleton />
+      </Typography>
+      <Typography variant="h5">
+        <Skeleton />
+      </Typography>
+      <Typography variant="body1">
+        <Skeleton />
+      </Typography>
+    </div>
+  ) : (
+    <div>
+      <Typography variant="h5">Summary</Typography>
+      <Divider sx={{ my: 2 }} />
+      {summary["description"] ? (
+        <SummarAIseSection
+          header="Description"
+          chunks={summary["description"]}
+          selectedChunk={highlightedChunk}
+          setSelectedChunk={handleHighlightedChunkChange}
+        />
+      ) : null}
+      {Object.entries(summary).map(([section, items]) =>
+        ["start", "change", "stop"].includes(section) ? (
+          <motion.div
+            key={section}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <SummarAIseSection
+              header={section}
+              chunks={items}
+              selectedChunk={highlightedChunk}
+              setSelectedChunk={handleHighlightedChunkChange}
+            />
+          </motion.div>
+        ) : null
+      )}
+    </div>
+  );
 
   return (
     <Dialog fullScreen open={summaryOpen} onClose={() => setSummaryOpen(false)}>
@@ -161,29 +220,7 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
               borderRight: "1px solid #ccc",
             }}
           >
-            <div>
-              <Typography variant="h5">Summary</Typography>
-              <Divider sx={{ my: 2 }} />
-              {summary["description"] ? (
-                <SummarAIseSection
-                  header="Description"
-                  chunks={summary["description"]}
-                  selectedChunk={highlightedChunk}
-                  setSelectedChunk={handleHighlightedChunkChange}
-                />
-              ) : null}
-              {Object.entries(summary).map(([section, items]) =>
-                ["start", "change", "stop"].includes(section) ? (
-                  <SummarAIseSection
-                    key={section}
-                    header={section}
-                    chunks={items}
-                    selectedChunk={highlightedChunk}
-                    setSelectedChunk={handleHighlightedChunkChange}
-                  />
-                ) : null
-              )}
-            </div>
+            {summarySection}
             <ButtonGroup className="absolute p-2 right-0 bottom-0">
               <Button color="success">Accept</Button>
               <Button color="warning">Edit</Button>
