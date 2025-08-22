@@ -143,6 +143,7 @@ interface Props {
 
 const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
   const [loading, setLoading] = useState(true);
+  const [rejecting, setRejecting] = useState(false);
   const [highlightedChunk, setHighlightedChunk] = useState<SummaryChunk | null>(
     null
   );
@@ -277,11 +278,40 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
             }}
           >
             {summarySection}
-            <ButtonGroup className="absolute p-2 right-0 bottom-0">
-              <Button color="success">Accept</Button>
-              <Button color="warning">Edit</Button>
-              <Button color="error">Reject</Button>
-            </ButtonGroup>
+            {rejecting ? (
+              <motion.div
+                key="rejection-actions"
+                layout="preserve-aspect"
+                layoutId="summary-actions"
+                initial={{ opacity: 0, filter: "blur(8px)" }}
+                animate={{ opacity: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, filter: "blur(8px)" }}
+                className="absolute p-2 right-0 bottom-0"
+              >
+                <ButtonGroup>
+                  <Button onClick={() => setRejecting(false)}>Cancel</Button>
+                  <Button color="error">Inaccurate info</Button>
+                  <Button color="error">Missing info</Button>
+                </ButtonGroup>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="normal-actions"
+                layout="preserve-aspect"
+                layoutId="summary-actions"
+                initial={{ opacity: 0, filter: "blur(8px)" }}
+                animate={{ opacity: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, filter: "blur(8px)" }}
+                className="absolute p-2 right-0 bottom-0"
+              >
+                <ButtonGroup>
+                  <Button color="info">Preview</Button>
+                  <Button color="error" onClick={() => setRejecting(true)}>
+                    Reject
+                  </Button>
+                </ButtonGroup>
+              </motion.div>
+            )}
           </Box>
 
           {/* Notes Section - 60% */}
