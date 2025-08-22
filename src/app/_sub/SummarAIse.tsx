@@ -17,7 +17,8 @@ import { Consultation } from "@/app/api/patients/[id]/consults/model";
 import { Summary, SummaryChunk } from "@/app/api/summary/model";
 import { findTerms, mockSummaries } from "@/app/lib/mocks";
 import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { Check, Close, Edit } from "@mui/icons-material";
 
 interface SummarAIseSectionProps {
   header: string;
@@ -32,6 +33,10 @@ const SummarAIseSection = ({
   selectedChunk,
   setSelectedChunk,
 }: SummarAIseSectionProps) => {
+  const [hoverTarget, setHoverTarget] = useState("");
+  const [acceptedChunks, setAcceptedChunks] = useState<string[]>([]);
+  const [rejectedChunks, setRejectedChunks] = useState<string[]>([]);
+
   const parseChunk = (content: string) => {
     const terms = findTerms(content);
     const parts = [];
@@ -53,6 +58,20 @@ const SummarAIseSection = ({
     return <Typography variant="body1">{parts}</Typography>;
   };
 
+  const handleAcceptChunk = (id: string) => {
+    setRejectedChunks(rejectedChunks.filter((c) => c !== id));
+    if (!acceptedChunks.includes(id)) {
+      setAcceptedChunks([...acceptedChunks, id]);
+    }
+  };
+
+  const handleRejectChunk = (id: string) => {
+    setAcceptedChunks(acceptedChunks.filter((c) => c !== id));
+    if (!rejectedChunks.includes(id)) {
+      setRejectedChunks([...rejectedChunks, id]);
+    }
+  };
+
   return (
     <div key={header}>
       <Typography variant="h6" sx={{ textTransform: "capitalize" }}>
@@ -65,6 +84,13 @@ const SummarAIseSection = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: i * 0.2 }}
+            className={
+              "relative" +
+              (acceptedChunks.includes(chunk.id) ? " bg-green-100" : "") +
+              (rejectedChunks.includes(chunk.id) ? " bg-red-100" : "")
+            }
+            onHoverStart={() => setHoverTarget(chunk.id)}
+            onHoverEnd={() => setHoverTarget("")}
           >
             <ListItemButton
               selected={chunk.id === selectedChunk?.id}
@@ -72,6 +98,36 @@ const SummarAIseSection = ({
             >
               {parseChunk(chunk.content)}
             </ListItemButton>
+            <AnimatePresence>
+              {chunk.id === hoverTarget && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="absolute right-0 top-0 z-10 rounded-full bg-white border-gray-300 border-1 drop-shadow-md"
+                >
+                  <ButtonGroup size="small">
+                    <IconButton
+                      color="success"
+                      disabled={acceptedChunks.includes(chunk.id)}
+                      onClick={() => handleAcceptChunk(chunk.id)}
+                    >
+                      <Check />
+                    </IconButton>
+                    <IconButton
+                      color="error"
+                      disabled={rejectedChunks.includes(chunk.id)}
+                      onClick={() => handleRejectChunk(chunk.id)}
+                    >
+                      <Close />
+                    </IconButton>
+                    <IconButton color="info">
+                      <Edit fontSize="medium" />
+                    </IconButton>
+                  </ButtonGroup>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         ))}
       </List>
