@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   ButtonGroup,
@@ -10,8 +11,9 @@ import {
   IconButton,
   Link,
   List,
-  ListItemButton,
+  ListItem,
   Skeleton,
+  Snackbar,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -36,7 +38,6 @@ const SummarAIseSection = ({
   selectedChunk,
   setSelectedChunk,
 }: SummarAIseSectionProps) => {
-  const [hoverTarget, setHoverTarget] = useState("");
   const [acceptedChunks, setAcceptedChunks] = useState<string[]>([]);
   const [rejectedChunks, setRejectedChunks] = useState<string[]>([]);
 
@@ -84,25 +85,19 @@ const SummarAIseSection = ({
         {chunks.map((chunk, i) => (
           <motion.div
             key={chunk.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: i * 0.2 }}
-            className={
-              "relative" +
-              (acceptedChunks.includes(chunk.id) ? " bg-green-100" : "") +
-              (rejectedChunks.includes(chunk.id) ? " bg-red-100" : "")
-            }
-            onHoverStart={() => setHoverTarget(chunk.id)}
-            onHoverEnd={() => setHoverTarget("")}
+            animate={{
+              backgroundColor:
+                (acceptedChunks.includes(chunk.id) && "#dcfce7") ||
+                (rejectedChunks.includes(chunk.id) && "#ffe2e2") ||
+                "#ffffff00",
+            }}
+            className={"relative"}
+            onHoverStart={() => setSelectedChunk(chunk)}
+            onHoverEnd={() => setSelectedChunk(chunk)}
           >
-            <ListItemButton
-              selected={chunk.id === selectedChunk?.id}
-              onClick={() => setSelectedChunk(chunk)}
-            >
-              {parseChunk(chunk.content)}
-            </ListItemButton>
+            <ListItem>{parseChunk(chunk.content)}</ListItem>
             <AnimatePresence>
-              {chunk.id === hoverTarget && (
+              {chunk.id === selectedChunk?.id && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.6 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -200,6 +195,13 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
 
   useEffect(() => {
     setHighlightedChunk(null);
+    const searchFrom = "Stop aspirin";
+    const searchTo = "TCU 3/12";
+    console.log(
+      selected?.notes.indexOf(searchFrom) +
+        " " +
+        selected?.notes.indexOf(searchTo)
+    );
   }, [selected]);
 
   if (!selected) {
@@ -214,22 +216,41 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
   const handleHighlightedChunkChange = (chunk: SummaryChunk) =>
     setHighlightedChunk(chunk.id === highlightedChunk?.id ? null : chunk);
 
-  const summarySection = loading ? (
-    <div>
-      <Typography variant="h3">
-        <Skeleton />
+  const dialogTitle = (
+    <Typography variant="h6" fontWeight={600}>
+      SummarAIser{" "}
+      <Typography
+        component="span"
+        variant="body2"
+        sx={{
+          ml: 1,
+          color: "rgba(255,255,255,0.7)",
+        }}
+      >
+        by ClearNote
       </Typography>
-      <Typography variant="h5">
-        <Skeleton />
-      </Typography>
-      <Typography variant="body1">
-        <Skeleton />
-      </Typography>
-    </div>
-  ) : (
-    <div>
-      <Typography variant="h5">Summary</Typography>
-      <Divider sx={{ my: 2 }} />
+    </Typography>
+  );
+
+  const dialogActionButtons = (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <IconButton
+        onClick={() => setSummaryOpen(false)}
+        sx={{
+          color: "white",
+          "&:hover": {
+            backgroundColor: "rgba(255,255,255,0.1)",
+          },
+        }}
+        aria-label="Close"
+      >
+        <CloseIcon />
+      </IconButton>
+    </Box>
+  );
+
+  const summarySections = (
+    <>
       {summary["description"] ? (
         <SummarAIseSection
           header="Description"
@@ -240,21 +261,154 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
       ) : null}
       {Object.entries(summary).map(([section, items]) =>
         ["start", "change", "stop"].includes(section) ? (
-          <motion.div
+          <SummarAIseSection
             key={section}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <SummarAIseSection
-              header={section}
-              chunks={items}
-              selectedChunk={highlightedChunk}
-              setSelectedChunk={handleHighlightedChunkChange}
-            />
-          </motion.div>
+            header={section}
+            chunks={items}
+            selectedChunk={highlightedChunk}
+            setSelectedChunk={handleHighlightedChunkChange}
+          />
         ) : null
       )}
+    </>
+  );
+
+  const summaryContent = loading ? (
+    <div>
+      <Typography variant="h1">
+        <Skeleton />
+      </Typography>
+      <Typography variant="h3">
+        <Skeleton />
+      </Typography>
+      <Typography variant="h3">
+        <Skeleton />
+      </Typography>
+      <Typography variant="h5">
+        <Skeleton />
+      </Typography>
     </div>
+  ) : (
+    <div className="relative">
+      <Typography variant="h5">Summary</Typography>
+      <Divider sx={{ my: 2 }} />
+      {summarySections}
+      {/* Simulated text generation animation */}
+      {loading || (
+        <motion.div
+          animate={{ height: 0 }}
+          transition={{ duration: 1 }}
+          className="absolute w-full h-full bottom-0 right-0 bg-gradient-to-b from-transparent to-white to-5%"
+        />
+      )}
+    </div>
+  );
+
+  const summaryActionsVariants = {
+    visible: { opacity: 1, filter: "blur(0px)" },
+    blurred: { opacity: 0, filter: "blur(24px)" },
+  };
+  const summaryActions = rejecting ? (
+    <motion.div
+      key="rejection-actions"
+      layout="preserve-aspect"
+      layoutId="summary-actions"
+      variants={summaryActionsVariants}
+      initial="blurred"
+      animate="visible"
+      exit="blurred"
+    >
+      <Button onClick={() => setRejecting(false)}>Cancel</Button>
+      <Button color="error">Inaccurate info</Button>
+      <Button color="error">Missing info</Button>
+    </motion.div>
+  ) : (
+    <motion.div
+      key="normal-actions"
+      layout="preserve-aspect"
+      layoutId="summary-actions"
+      variants={summaryActionsVariants}
+      initial="blurred"
+      animate="visible"
+      exit="blurred"
+    >
+      <Button
+        color="info"
+        onClick={() => {
+          setPreviewSend(false);
+          setPreviewOpen(true);
+        }}
+      >
+        Preview
+      </Button>
+      <Button color="error" onClick={() => setRejecting(true)}>
+        Reject
+      </Button>
+    </motion.div>
+  );
+
+  const previewDialog = (
+    <>
+      <Dialog
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        scroll="paper"
+        maxWidth="md"
+      >
+        <DialogTitle>Preview Summary</DialogTitle>
+        <DialogContent dividers>
+          <AnimatePresence>
+            {previewSend || (
+              <motion.div
+                key="preview-content"
+                exit={{
+                  transform: [
+                    "translateY(0) scale(1)",
+                    "translateY(0) scale(0.8)",
+                    "translateY(-200%) scale(0.8)",
+                  ],
+                  opacity: [1, 1, 0.5],
+                }}
+                transition={{
+                  duration: 0.5,
+                  ease: ["easeOut", "easeIn"],
+                }}
+              >
+                <SummarAIsePreview summary={summarySections} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </DialogContent>
+        <DialogActions>
+          <ButtonGroup>
+            <Button
+              startIcon={<Send />}
+              variant="contained"
+              onClick={() => {
+                setPreviewSend(true);
+                setTimeout(() => setPreviewOpen(false), 400);
+              }}
+              disabled={previewSend}
+            >
+              Send
+            </Button>
+            <Button startIcon={<Close />} onClick={() => setPreviewOpen(false)}>
+              Close
+            </Button>
+          </ButtonGroup>
+        </DialogActions>
+      </Dialog>
+      <Snackbar
+        open={previewSend}
+        onClose={() => setPreviewSend(false)}
+        autoHideDuration={5000}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert severity="success" variant="filled">
+          Summary sent!
+        </Alert>
+      </Snackbar>
+    </>
   );
 
   return (
@@ -276,36 +430,8 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
             boxShadow: 3,
           }}
         >
-          {/* Title */}
-          <Typography variant="h6" fontWeight={600}>
-            SummarAIser{" "}
-            <Typography
-              component="span"
-              variant="body2"
-              sx={{
-                ml: 1,
-                color: "rgba(255,255,255,0.7)",
-              }}
-            >
-              by ClearNote
-            </Typography>
-          </Typography>
-
-          {/* Action buttons */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton
-              onClick={() => setSummaryOpen(false)}
-              sx={{
-                color: "white",
-                "&:hover": {
-                  backgroundColor: "rgba(255,255,255,0.1)",
-                },
-              }}
-              aria-label="Close"
-            >
-              <CloseIcon />
-            </IconButton>
-          </Box>
+          {dialogTitle}
+          {dialogActionButtons}
         </Box>
 
         {/* Scrollable Content */}
@@ -320,108 +446,10 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
               borderRight: "1px solid #ccc",
             }}
           >
-            {summarySection}
-            {rejecting ? (
-              <motion.div
-                key="rejection-actions"
-                layout="preserve-aspect"
-                layoutId="summary-actions"
-                initial={{ opacity: 0, filter: "blur(8px)" }}
-                animate={{ opacity: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, filter: "blur(8px)" }}
-                className="absolute p-2 right-0 bottom-0"
-              >
-                <ButtonGroup>
-                  <Button onClick={() => setRejecting(false)}>Cancel</Button>
-                  <Button color="error">Inaccurate info</Button>
-                  <Button color="error">Missing info</Button>
-                </ButtonGroup>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="normal-actions"
-                layout="preserve-aspect"
-                layoutId="summary-actions"
-                initial={{ opacity: 0, filter: "blur(8px)" }}
-                animate={{ opacity: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, filter: "blur(8px)" }}
-                className="absolute p-2 right-0 bottom-0"
-              >
-                <ButtonGroup>
-                  <Button
-                    color="info"
-                    onClick={() => {
-                      setPreviewSend(false);
-                      setPreviewOpen(true);
-                    }}
-                  >
-                    Preview
-                  </Button>
-                  <Button color="error" onClick={() => setRejecting(true)}>
-                    Reject
-                  </Button>
-                </ButtonGroup>
-              </motion.div>
-            )}
-            <Dialog
-              open={previewOpen}
-              onClose={() => setPreviewOpen(false)}
-              scroll="paper"
-              maxWidth="md"
-            >
-              <DialogTitle>Preview Summary</DialogTitle>
-              <DialogContent dividers>
-                <AnimatePresence>
-                  {previewSend ? (
-                    <motion.div
-                      initial={{ transform: "translateX(-200%)" }}
-                      animate={{ transform: "translateX(0)" }}
-                      transition={{ delay: 1 }}
-                    >
-                      <Typography variant="h6" color="success">
-                        Done {<Check />}
-                      </Typography>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="preview-content"
-                      exit={{
-                        transform: [
-                          "translateY(0) scale(1)",
-                          "translateY(0) scale(0.8)",
-                          "translateY(-200%) scale(0.8)",
-                        ],
-                        opacity: [1, 1, 0.8],
-                      }}
-                      transition={{
-                        duration: 0.8,
-                        ease: ["easeOut", "easeIn"],
-                      }}
-                    >
-                      <SummarAIsePreview summary={summarySection} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </DialogContent>
-              <DialogActions>
-                <ButtonGroup>
-                  <Button
-                    startIcon={<Send />}
-                    variant="contained"
-                    onClick={() => setPreviewSend(true)}
-                    disabled={previewSend}
-                  >
-                    Send
-                  </Button>
-                  <Button
-                    startIcon={<Close />}
-                    onClick={() => setPreviewOpen(false)}
-                  >
-                    Close
-                  </Button>
-                </ButtonGroup>
-              </DialogActions>
-            </Dialog>
+            {summaryContent}
+            <Divider />
+            {summaryActions}
+            {previewDialog}
           </Box>
 
           {/* Notes Section - 60% */}

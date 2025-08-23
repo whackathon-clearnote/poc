@@ -16,7 +16,7 @@ const RightPanel = ({ selected, setSummaryOpen }: Props) => {
     setTimeout(() => {
       setSummaryOpen(true);
       setLoading(false);
-    }, 500);
+    }, 200);
   };
 
   return (
