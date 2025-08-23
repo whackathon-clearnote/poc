@@ -2,11 +2,11 @@ import { Consultation } from "@/app/api/patients/[id]/consults/model";
 import { mockConsultations } from "@/app/lib/mocks";
 import {
   Box,
-  Divider,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
+  Paper,
   TextField,
 } from "@mui/material";
 
@@ -20,8 +20,8 @@ const LeftPanel = ({ selected, setSelected }: Props) => {
     <Box
       sx={{
         width: "40%",
-        borderRight: "1px solid #ccc",
         p: 2,
+        overflowY: "auto",
       }}
     >
       <TextField
@@ -30,19 +30,20 @@ const LeftPanel = ({ selected, setSelected }: Props) => {
         variant="outlined"
         size="small"
       />
-      <Divider sx={{ my: 2 }} />
-      <List>
-        {mockConsultations.map((c) => (
-          <ListItem key={c.id} disablePadding>
-            <ListItemButton
-              selected={selected?.id === c.id}
-              onClick={() => setSelected(c)}
-            >
-              <ListItemText primary={c.title} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+      <Paper className="mt-4">
+        <List>
+          {mockConsultations.map((c, i) => (
+            <ListItem key={c.id + " " + i} disablePadding>
+              <ListItemButton
+                selected={selected?.id === c.id}
+                onClick={() => setSelected(c)}
+              >
+                <ListItemText primary={c.title} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Paper>
     </Box>
   );
 };

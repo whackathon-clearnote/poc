@@ -1,6 +1,6 @@
 import { Consultation } from "@/app/api/patients/[id]/consults/model";
-import { Box, Button, Paper, Typography } from "@mui/material";
-import { motion } from "motion/react";
+import { Box, Button, Divider, Paper, Typography } from "@mui/material";
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
 interface Props {
@@ -19,42 +19,57 @@ const RightPanel = ({ selected, setSummaryOpen }: Props) => {
     }, 200);
   };
 
+  const variants = {
+    gone: { opacity: 0, transform: "translateY(-100%)" },
+    show: {
+      opacity: 1,
+      transform: "translateY(0%)",
+      transition: { delay: 0.6 },
+    },
+  };
+
   return (
-    <Box sx={{ width: "60%", p: 2 }}>
-      {selected ? (
-        <motion.div
-          key={selected.id}
-          layout
-          layoutId="dialog-panel"
-          initial={{ opacity: 0, filter: "blur(16px)" }}
-          animate={{ opacity: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, filter: "blur(16px)" }}
-        >
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6">
-              Doctor&apos;s Notes for {selected.title}
-            </Typography>
-            <Box
-              sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 2 }}
-            >
-              <Button
-                color="inherit"
-                variant="outlined"
-                loading={loading}
-                onClick={handleGenerate}
-                sx={{ alignSelf: "flex-end" }}
-              >
-                Generate Summary
-              </Button>
-              <Typography variant="body1">{selected.notes}</Typography>
-            </Box>
-          </Paper>
-        </motion.div>
-      ) : (
-        <Typography variant="body1" color="text.secondary">
-          Select a consultation to view notes
-        </Typography>
-      )}
+    <Box sx={{ width: "60%", p: 2, overflowY: "auto" }}>
+      <AnimatePresence>
+        {selected ? (
+          <motion.div
+            key={selected.id}
+            layout
+            layoutId="dialog-panel"
+            variants={variants}
+            initial="gone"
+            animate="show"
+            exit="gone"
+          >
+            <Paper sx={{ p: 2 }}>
+              <div className="flex flex-row justify-between items-center">
+                <Typography variant="h6">
+                  Doctor&apos;s Notes for {selected.title}
+                </Typography>
+                <Button
+                  color="inherit"
+                  variant="outlined"
+                  loading={loading}
+                  onClick={handleGenerate}
+                  sx={{ alignSelf: "flex-end" }}
+                >
+                  Generate Summary
+                </Button>
+              </div>
+              <Divider className="py-1" />
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+                  {selected.notes}
+                </Typography>
+              </Box>
+            </Paper>
+          </motion.div>
+        ) : (
+          <Typography variant="body1" color="text.secondary">
+            Select a consultation to view notes
+          </Typography>
+        )}
+      </AnimatePresence>
     </Box>
   );
 };
