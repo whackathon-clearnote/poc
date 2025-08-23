@@ -33,8 +33,11 @@ export const mockConsultations: Consultation[] = [
       HF - leading to mild pedal oedema
 
       Plan
+      Start metformin 500mg BD for diabetes
+      Start amlodipine 10mg OD for hypertension, decrease to 5mg if BP < 100/60
+      Stop aspirin
       Increase frusemide 40mg OM → 60mg OM if have leg swelling
-      Increase KCl → 1.2g BD if increase frusemide dose.
+      Increase KCl → 1.5g BD if increase frusemide dose.
       TCU 3/12
   `,
   },
@@ -57,36 +60,60 @@ export const mockConsultations: Consultation[] = [
 ];
 
 export const mockSummary: Summary = {
+  description: [
+    {
+      id: uuidv4(),
+      content:
+        "The patient has a history of heart failure with preserved heart function, high blood pressure, and high cholesterol. They were previously followed by the cardiology team at NHC.",
+      begIndex: 253,
+      endIndex: 316,
+    },
+    {
+      id: uuidv4(),
+      content:
+        "In terms of diet, they usually eat two servings of fruit daily (mainly bananas and grapes) and have simple vegetables with rice for lunch and dinner. They do not drink soft drinks.",
+      begIndex: 342,
+      endIndex: 471,
+    },
+    {
+      id: uuidv4(),
+      content:
+        "Currently, their heart condition is causing mild swelling in the feet.",
+      begIndex: 479,
+      endIndex: 529,
+    },
+  ],
   start: [
     {
       id: uuidv4(),
       content: "Metformin 500mg BD for diabetes",
-      begIndex: 60,
-      endIndex: 139,
+      begIndex: 548,
+      endIndex: 592,
     },
     {
       id: uuidv4(),
-      content: "Amlodipine 10mg OD for hypertension",
-      begIndex: 146,
-      endIndex: 200,
+      content: "Amlodipine 10mg OD for hypertension (5mg if BP < 100/60)",
+      begIndex: 592,
+      endIndex: 672,
     },
   ],
   change: [
     {
       id: uuidv4(),
       content: "Increase Furosemide from 20mg → 40mg if have leg swelling",
-      begIndex: 548,
-      endIndex: 605,
+      begIndex: 691,
+      endIndex: 755,
     },
     {
       id: uuidv4(),
-      content: "Decrease Amlodipine from 10mg → 5mg if BP < 100/60",
-      begIndex: 612,
-      endIndex: 661,
+      content:
+        "Increase Potassium chloride (KCl) from 1.2g → 1.5g due to Furosemide increase",
+      begIndex: 755,
+      endIndex: 812,
     },
   ],
   stop: [
-    { id: uuidv4(), content: "Aspirin 75mg", begIndex: 669, endIndex: 677 },
+    { id: uuidv4(), content: "Aspirin 75mg", begIndex: 672, endIndex: 684 },
   ],
 };
 
