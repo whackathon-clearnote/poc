@@ -23,7 +23,7 @@ import { Summary, SummaryChunk } from "@/app/api/summary/model";
 import { findTerms, mockSummaries } from "@/app/lib/mocks";
 import { ReactNode, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Check, Close, Edit, Send } from "@mui/icons-material";
+import { Close, Done, DoneAll, Edit, Send } from "@mui/icons-material";
 
 interface SummarAIseSectionProps {
   header: string;
@@ -69,6 +69,17 @@ const SummarAIseSection = ({
     }
   };
 
+  const handleAcceptAllChunks = () => {
+    setAcceptedChunks([
+      ...acceptedChunks,
+      ...chunks
+        .map((c) => c.id)
+        .filter(
+          (id) => !acceptedChunks.includes(id) && !rejectedChunks.includes(id)
+        ),
+    ]);
+  };
+
   const handleRejectChunk = (id: string) => {
     setAcceptedChunks(acceptedChunks.filter((c) => c !== id));
     if (!rejectedChunks.includes(id)) {
@@ -78,9 +89,14 @@ const SummarAIseSection = ({
 
   return (
     <div key={header}>
-      <Typography variant="h6" sx={{ textTransform: "capitalize" }}>
-        {header}
-      </Typography>
+      <div className="flex flex-row justify-between">
+        <Typography variant="h6" sx={{ textTransform: "capitalize" }}>
+          {header}
+        </Typography>
+        <IconButton color="success" onClick={handleAcceptAllChunks}>
+          <DoneAll />
+        </IconButton>
+      </div>
       <List>
         {chunks.map((chunk, i) => (
           <motion.div
@@ -105,12 +121,8 @@ const SummarAIseSection = ({
                   className="absolute right-0 top-0 z-10 rounded-full bg-white border-gray-300 border-1 drop-shadow-md"
                 >
                   <ButtonGroup size="small">
-                    <IconButton
-                      color="success"
-                      disabled={acceptedChunks.includes(chunk.id)}
-                      onClick={() => handleAcceptChunk(chunk.id)}
-                    >
-                      <Check />
+                    <IconButton color="info">
+                      <Edit />
                     </IconButton>
                     <IconButton
                       color="error"
@@ -119,8 +131,12 @@ const SummarAIseSection = ({
                     >
                       <Close />
                     </IconButton>
-                    <IconButton color="info">
-                      <Edit fontSize="medium" />
+                    <IconButton
+                      color="success"
+                      disabled={acceptedChunks.includes(chunk.id)}
+                      onClick={() => handleAcceptChunk(chunk.id)}
+                    >
+                      <Done />
                     </IconButton>
                   </ButtonGroup>
                 </motion.div>
