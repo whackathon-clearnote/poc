@@ -1,4 +1,5 @@
 import { Consultation } from "@/app/api/patients/[id]/consults/model";
+import { AutoAwesome } from "@mui/icons-material";
 import { Box, Button, Divider, Paper, Typography } from "@mui/material";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
@@ -41,7 +42,7 @@ const RightPanel = ({ selected, setSummaryOpen }: Props) => {
             animate="show"
             exit="gone"
           >
-            <Paper sx={{ p: 2 }}>
+            <Paper className="flex flex-col gap-2 p-4">
               <div className="flex flex-row justify-between items-center">
                 <Typography variant="h6">
                   Doctor&apos;s Notes for {selected.title}
@@ -52,16 +53,15 @@ const RightPanel = ({ selected, setSummaryOpen }: Props) => {
                   loading={loading}
                   onClick={handleGenerate}
                   sx={{ alignSelf: "flex-end" }}
+                  startIcon={<AutoAwesome />}
                 >
                   Generate Summary
                 </Button>
               </div>
-              <Divider className="py-1" />
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
-                  {selected.notes}
-                </Typography>
-              </Box>
+              <Divider />
+              <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+                {selected.notes}
+              </Typography>
             </Paper>
           </motion.div>
         ) : (
