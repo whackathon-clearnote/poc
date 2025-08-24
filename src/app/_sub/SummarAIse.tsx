@@ -24,6 +24,9 @@ import { findTerms, mockSummaries } from "@/app/lib/mocks";
 import { ReactNode, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Close, Done, DoneAll, Edit, Send } from "@mui/icons-material";
+import { useHotkeys } from "react-hotkeys-hook";
+
+const hotkeyScope = ["summary"];
 
 interface SummarAIseSectionProps {
   header: string;
@@ -202,6 +205,24 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
     null
   );
 
+  const handlePreviewOpen = () => {
+    setPreviewSend(false);
+    setPreviewOpen(true);
+  };
+  const handlePreviewSend = () => {
+    setPreviewSend(true);
+    setTimeout(() => setPreviewOpen(false), 400);
+  };
+
+  useHotkeys("alt+p", handlePreviewOpen, {
+    scopes: hotkeyScope,
+    enabled: !previewOpen,
+  });
+  useHotkeys("alt+s", handlePreviewSend, {
+    scopes: hotkeyScope,
+    enabled: previewOpen,
+  });
+
   useEffect(() => {
     if (summaryOpen) {
       setLoading(true);
@@ -348,14 +369,8 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
       animate="visible"
       exit="blurred"
     >
-      <Button
-        color="info"
-        onClick={() => {
-          setPreviewSend(false);
-          setPreviewOpen(true);
-        }}
-      >
-        Preview
+      <Button color="info" onClick={handlePreviewOpen}>
+        <u>P</u>review
       </Button>
       <Button color="error" onClick={() => setRejecting(true)}>
         Reject
@@ -400,13 +415,10 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
             <Button
               startIcon={<Send />}
               variant="contained"
-              onClick={() => {
-                setPreviewSend(true);
-                setTimeout(() => setPreviewOpen(false), 400);
-              }}
+              onClick={handlePreviewSend}
               disabled={previewSend}
             >
-              Send
+              <u>S</u>end
             </Button>
             <Button startIcon={<Close />} onClick={() => setPreviewOpen(false)}>
               Close

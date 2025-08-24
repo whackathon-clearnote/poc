@@ -8,7 +8,9 @@ import {
   ListItemText,
   Paper,
   TextField,
+  Typography,
 } from "@mui/material";
+import { useHotkeys } from "react-hotkeys-hook";
 
 interface Props {
   selected: Consultation | null;
@@ -16,6 +18,14 @@ interface Props {
 }
 
 const LeftPanel = ({ selected, setSelected }: Props) => {
+  const handleSelectIndex = (i: number) => setSelected(mockConsultations[i]);
+
+  for (let i = 0; i < 9; i += 1) {
+    useHotkeys(`alt+${i + 1}`, () => handleSelectIndex(i), {
+      scopes: ["main"],
+    });
+  }
+
   return (
     <Box
       sx={{
@@ -33,7 +43,17 @@ const LeftPanel = ({ selected, setSelected }: Props) => {
       <Paper className="mt-4">
         <List>
           {mockConsultations.map((c, i) => (
-            <ListItem key={c.id + " " + i} disablePadding>
+            <ListItem
+              key={c.id}
+              disablePadding
+              secondaryAction={
+                i + 1 < 10 ? (
+                  <Typography variant="caption">
+                    <u>{i + 1}</u>
+                  </Typography>
+                ) : undefined
+              }
+            >
               <ListItemButton
                 selected={selected?.id === c.id}
                 onClick={() => setSelected(c)}

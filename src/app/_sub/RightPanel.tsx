@@ -3,6 +3,7 @@ import { AutoAwesome } from "@mui/icons-material";
 import { Box, Button, Divider, Paper, Typography } from "@mui/material";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 interface Props {
   selected: Consultation | null;
@@ -19,6 +20,11 @@ const RightPanel = ({ selected, setSummaryOpen }: Props) => {
       setLoading(false);
     }, 200);
   };
+
+  useHotkeys("alt+g", handleGenerate, {
+    enabled: !!selected,
+    scopes: ["main"],
+  });
 
   const variants = {
     gone: { opacity: 0, transform: "translateY(-100%)" },
@@ -55,7 +61,7 @@ const RightPanel = ({ selected, setSummaryOpen }: Props) => {
                   sx={{ alignSelf: "flex-end" }}
                   startIcon={<AutoAwesome />}
                 >
-                  Generate Summary
+                  <u>G</u>enerate Summary
                 </Button>
               </div>
               <Divider />
