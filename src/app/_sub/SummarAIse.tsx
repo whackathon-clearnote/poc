@@ -3,6 +3,9 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Card,
+  CardContent,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -19,9 +22,9 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Consultation } from "@/app/api/patients/[id]/consults/model";
-import { Summary, SummaryChunk } from "@/app/api/summary/model";
+import { SummaryChunk } from "@/app/api/summary/model";
 import { findTerms, mockSummaries } from "@/app/lib/mocks";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Close, Done, DoneAll, Edit, Send } from "@mui/icons-material";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -33,6 +36,11 @@ interface SummarAIseSectionProps {
   chunks: SummaryChunk[];
   selectedChunk?: SummaryChunk | null;
   setSelectedChunk: (chunk: SummaryChunk) => void;
+  acceptedChunks: string[];
+  rejectedChunks: string[];
+  acceptChunks: (id: string[]) => void;
+  acceptChunk: (id: string) => void;
+  rejectChunk: (id: string) => void;
 }
 
 const SummarAIseSection = ({
@@ -40,10 +48,12 @@ const SummarAIseSection = ({
   chunks,
   selectedChunk,
   setSelectedChunk,
+  acceptedChunks,
+  rejectedChunks,
+  acceptChunks,
+  acceptChunk,
+  rejectChunk,
 }: SummarAIseSectionProps) => {
-  const [acceptedChunks, setAcceptedChunks] = useState<string[]>([]);
-  const [rejectedChunks, setRejectedChunks] = useState<string[]>([]);
-
   const parseChunk = (content: string) => {
     const terms = findTerms(content);
     const parts = [];
@@ -65,52 +75,34 @@ const SummarAIseSection = ({
     return <Typography variant="body1">{parts}</Typography>;
   };
 
-  const handleAcceptChunk = (id: string) => {
-    setRejectedChunks(rejectedChunks.filter((c) => c !== id));
-    if (!acceptedChunks.includes(id)) {
-      setAcceptedChunks([...acceptedChunks, id]);
-    }
-  };
-
-  const handleAcceptAllChunks = () => {
-    setAcceptedChunks([
-      ...acceptedChunks,
-      ...chunks
-        .map((c) => c.id)
-        .filter(
-          (id) => !acceptedChunks.includes(id) && !rejectedChunks.includes(id)
-        ),
-    ]);
-  };
-
-  const handleRejectChunk = (id: string) => {
-    setAcceptedChunks(acceptedChunks.filter((c) => c !== id));
-    if (!rejectedChunks.includes(id)) {
-      setRejectedChunks([...rejectedChunks, id]);
-    }
-  };
-
   return (
     <div key={header}>
       <div className="flex flex-row justify-between">
         <Typography variant="h6" sx={{ textTransform: "capitalize" }}>
           {header}
         </Typography>
-        <IconButton color="success" onClick={handleAcceptAllChunks}>
+        <IconButton
+          color="success"
+          onClick={() => acceptChunks(chunks.map((c) => c.id))}
+        >
           <DoneAll />
         </IconButton>
       </div>
       <List>
-        {chunks.map((chunk, i) => (
+        {chunks.map((chunk) => (
           <motion.div
             key={chunk.id}
             animate={{
+              border: "solid",
+              borderColor:
+                selectedChunk?.id === chunk.id ? "#ffdf21" : "#ffffff00",
+              borderRadius: 8,
               backgroundColor:
                 (acceptedChunks.includes(chunk.id) && "#dcfce7") ||
                 (rejectedChunks.includes(chunk.id) && "#ffe2e2") ||
                 "#ffffff00",
             }}
-            className={"relative"}
+            className="relative"
             onHoverStart={() => setSelectedChunk(chunk)}
             onHoverEnd={() => setSelectedChunk(chunk)}
           >
@@ -130,14 +122,14 @@ const SummarAIseSection = ({
                     <IconButton
                       color="error"
                       disabled={rejectedChunks.includes(chunk.id)}
-                      onClick={() => handleRejectChunk(chunk.id)}
+                      onClick={() => acceptChunk(chunk.id)}
                     >
                       <Close />
                     </IconButton>
                     <IconButton
                       color="success"
                       disabled={acceptedChunks.includes(chunk.id)}
-                      onClick={() => handleAcceptChunk(chunk.id)}
+                      onClick={() => rejectChunk(chunk.id)}
                     >
                       <Done />
                     </IconButton>
@@ -204,6 +196,8 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
   const [highlightedChunk, setHighlightedChunk] = useState<SummaryChunk | null>(
     null
   );
+  const [acceptedChunks, setAcceptedChunks] = useState<string[]>([]);
+  const [rejectedChunks, setRejectedChunks] = useState<string[]>([]);
 
   const handlePreviewOpen = () => {
     setPreviewSend(false);
@@ -230,24 +224,115 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
     }
   }, [summaryOpen]);
 
-  useEffect(() => {
-    setHighlightedChunk(null);
-    const searchFrom = "Stop aspirin";
-    const searchTo = "TCU 3/12";
-    console.log(
-      selected?.notes.indexOf(searchFrom) +
-        " " +
-        selected?.notes.indexOf(searchTo)
-    );
-  }, [selected]);
+  const summary = useMemo(
+    () => (selected ? mockSummaries[selected.id] : null),
+    [selected]
+  );
 
-  if (!selected) {
+  const allChunks = useMemo(
+    () =>
+      summary
+        ? Object.values(summary).reduce((prev, curr) => [...prev, ...curr])
+        : [],
+    [summary]
+  );
+
+  const handlePrevChunk = () => {
+    if (!highlightedChunk) {
+      return;
+    }
+    const i = allChunks.findIndex((c) => c.id === highlightedChunk.id);
+    if (i > 0) {
+      setHighlightedChunk(allChunks[i - 1]);
+    }
+  };
+  const handleNextChunk = () => {
+    if (!highlightedChunk) {
+      return;
+    }
+    const i = allChunks.findIndex((c) => c.id === highlightedChunk.id);
+    if (i < allChunks.length - 1) {
+      setHighlightedChunk(allChunks[i + 1]);
+    }
+  };
+  const handleAcceptChunk = (id: string) => {
+    setRejectedChunks(rejectedChunks.filter((c) => c !== id));
+    if (!acceptedChunks.includes(id)) {
+      setAcceptedChunks([...acceptedChunks, id]);
+    }
+  };
+  const handleAcceptChunks = (ids: string[]) => {
+    setAcceptedChunks([
+      ...acceptedChunks,
+      ...ids.filter(
+        (id) => !acceptedChunks.includes(id) && !rejectedChunks.includes(id)
+      ),
+    ]);
+  };
+  const handleRejectChunk = (id: string) => {
+    setAcceptedChunks(acceptedChunks.filter((c) => c !== id));
+    if (!rejectedChunks.includes(id)) {
+      setRejectedChunks([...rejectedChunks, id]);
+    }
+  };
+
+  useHotkeys(
+    "alt+up",
+    () => {
+      if (!highlightedChunk) {
+        setHighlightedChunk(allChunks[0]);
+        return;
+      }
+      handlePrevChunk();
+    },
+    { scopes: hotkeyScope, enabled: !previewOpen },
+    [highlightedChunk, allChunks]
+  );
+  useHotkeys(
+    "alt+down",
+    () => {
+      if (!highlightedChunk) {
+        setHighlightedChunk(allChunks[0]);
+        return;
+      }
+      handleNextChunk();
+    },
+    { scopes: hotkeyScope, enabled: !previewOpen },
+    [highlightedChunk, allChunks, handleNextChunk]
+  );
+  useHotkeys(
+    "alt+left",
+    () => {
+      if (highlightedChunk) {
+        handleRejectChunk(highlightedChunk.id);
+      }
+      handleNextChunk();
+    },
+    { scopes: hotkeyScope, enabled: !previewOpen },
+    [highlightedChunk, handleRejectChunk, handleNextChunk]
+  );
+  useHotkeys(
+    "alt+right",
+    () => {
+      if (highlightedChunk) {
+        handleAcceptChunk(highlightedChunk.id);
+      }
+      handleNextChunk();
+    },
+    { scopes: hotkeyScope, enabled: !previewOpen },
+    [highlightedChunk, handleAcceptChunk, handleNextChunk]
+  );
+  useHotkeys(
+    "alt+a",
+    () => {
+      handleAcceptChunks(allChunks.map((c) => c.id));
+    },
+    { scopes: hotkeyScope, enabled: !previewOpen },
+    [allChunks, handleAcceptChunks]
+  );
+
+  if (!selected || !summary) {
     return null; // Don't render dialog if no consultation is selected
-  }
-
-  const summary: Summary = mockSummaries[selected.id];
-  if (!summary) {
-    return null;
   }
 
   const handleHighlightedChunkChange = (chunk: SummaryChunk) =>
@@ -294,6 +379,11 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
           chunks={summary["description"]}
           selectedChunk={highlightedChunk}
           setSelectedChunk={handleHighlightedChunkChange}
+          acceptedChunks={acceptedChunks}
+          rejectedChunks={rejectedChunks}
+          acceptChunks={handleAcceptChunks}
+          acceptChunk={handleAcceptChunk}
+          rejectChunk={handleRejectChunk}
         />
       ) : null}
       {Object.entries(summary).map(([section, items]) =>
@@ -304,6 +394,11 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
             chunks={items}
             selectedChunk={highlightedChunk}
             setSelectedChunk={handleHighlightedChunkChange}
+            acceptedChunks={acceptedChunks}
+            rejectedChunks={rejectedChunks}
+            acceptChunks={handleAcceptChunks}
+            acceptChunk={handleAcceptChunk}
+            rejectChunk={handleRejectChunk}
           />
         ) : null
       )}
@@ -327,6 +422,16 @@ const SummarAIseDialog = ({ selected, summaryOpen, setSummaryOpen }: Props) => {
     </div>
   ) : (
     <div className="relative">
+      <Card className="flex flex-col gap-1 p-2 mb-4">
+        <Typography variant="body1">Keyboard shortcuts</Typography>
+        <Typography variant="caption">
+          ALT+(UP/DOWN) to move between items
+        </Typography>
+        <Typography variant="caption">
+          ALT+(LEFT/RIGHT) to reject/accept items
+        </Typography>
+        <Typography variant="caption">ALT+A to accept all items</Typography>
+      </Card>
       <Typography variant="h5">Summary</Typography>
       <Divider sx={{ my: 2 }} />
       {summarySections}
