@@ -106,8 +106,7 @@ export const mockSummary: Summary = {
     },
     {
       id: uuidv4(),
-      content:
-        "Increase Potassium chloride (KCl) from 1.2g → 1.5g due to Furosemide increase",
+      content: "Increase KCl from 1.2g → 1.5g due to Furosemide increase",
       begIndex: 755,
       endIndex: 812,
     },

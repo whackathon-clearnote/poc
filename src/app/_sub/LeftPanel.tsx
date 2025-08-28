@@ -41,6 +41,14 @@ const LeftPanel = ({ selected, setSelected }: Props) => {
         size="small"
       />
       <Paper className="mt-4">
+        {/* Title above the list */}
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: "bold", p: 2, fontSize: 20 }}
+          gutterBottom
+        >
+          Showing consultation records for patient John Doe
+        </Typography>
         <List>
           {mockConsultations.map((c, i) => (
             <ListItem
