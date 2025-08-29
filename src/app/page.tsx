@@ -7,6 +7,7 @@ import LeftPanel from "./_sub/LeftPanel";
 import RightPanel from "./_sub/RightPanel";
 import SummarAIseDialog from "./_sub/SummarAIse";
 import { HotkeysProvider, useHotkeysContext } from "react-hotkeys-hook";
+import TileContainer from "./_sub/Dashboard/TileContainer";
 
 function HotkeysScopeController({ summaryOpen }: { summaryOpen: boolean }) {
   const { enableScope, disableScope } = useHotkeysContext();
@@ -36,6 +37,8 @@ export default function Dashboard() {
         <AppBar position="static">
           <Toolbar />
         </AppBar>
+        <TileContainer />
+        <Divider />
         <Box
           sx={{
             display: "flex",
