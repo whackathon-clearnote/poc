@@ -20,11 +20,16 @@ interface Props {
 const LeftPanel = ({ selected, setSelected }: Props) => {
   const handleSelectIndex = (i: number) => setSelected(mockConsultations[i]);
 
-  for (let i = 0; i < 9; i += 1) {
-    useHotkeys(`alt+${i + 1}`, () => handleSelectIndex(i), {
-      scopes: ["main"],
-    });
-  }
+  // Temporarily done this way to prevent build error (react-hooks/rules-of-hooks)
+  useHotkeys("alt+1", () => handleSelectIndex(0), { scopes: ["main"] });
+  useHotkeys("alt+2", () => handleSelectIndex(1), { scopes: ["main"] });
+  useHotkeys("alt+3", () => handleSelectIndex(2), { scopes: ["main"] });
+  useHotkeys("alt+4", () => handleSelectIndex(3), { scopes: ["main"] });
+  useHotkeys("alt+5", () => handleSelectIndex(4), { scopes: ["main"] });
+  useHotkeys("alt+6", () => handleSelectIndex(5), { scopes: ["main"] });
+  useHotkeys("alt+7", () => handleSelectIndex(6), { scopes: ["main"] });
+  useHotkeys("alt+8", () => handleSelectIndex(7), { scopes: ["main"] });
+  useHotkeys("alt+9", () => handleSelectIndex(8), { scopes: ["main"] });
 
   return (
     <Box
@@ -41,6 +46,14 @@ const LeftPanel = ({ selected, setSelected }: Props) => {
         size="small"
       />
       <Paper className="mt-4">
+        {/* Title above the list */}
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: "bold", p: 2, fontSize: 20 }}
+          gutterBottom
+        >
+          Showing consultation records for patient John Doe
+        </Typography>
         <List>
           {mockConsultations.map((c, i) => (
             <ListItem

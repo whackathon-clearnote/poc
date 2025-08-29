@@ -51,7 +51,7 @@ const RightPanel = ({ selected, setSummaryOpen }: Props) => {
             <Paper className="flex flex-col gap-2 p-4">
               <div className="flex flex-row justify-between items-center">
                 <Typography variant="h6">
-                  Doctor&apos;s Notes for {selected.title}
+                  Doctor&apos;s Notes for &apos;{selected.title}&apos;
                 </Typography>
                 <Button
                   color="inherit"
