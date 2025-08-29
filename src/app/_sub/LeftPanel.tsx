@@ -49,10 +49,10 @@ const LeftPanel = ({ selected, setSelected }: Props) => {
         {/* Title above the list */}
         <Typography
           variant="subtitle1"
-          sx={{ fontWeight: "bold", p: 2, fontSize: 20 }}
+          sx={{ p: 2, fontSize: 20 }}
           gutterBottom
         >
-          Showing consultation records for patient John Doe
+          <b>Consultation records</b>
         </Typography>
         <List>
           {mockConsultations.map((c, i) => (
