@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { AnimatePresence, motion } from "motion/react";
+import { useRef, useEffect } from "react";
 
 interface SummarAIseSectionProps {
   header: string;
@@ -56,6 +57,21 @@ export const SummarAIseSection = ({
     return <Typography variant="body1">{parts}</Typography>;
   };
 
+  // --- NEW: store refs for each chunk ---
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // --- Scroll when selectedChunk changes ---
+  useEffect(() => {
+    if (!selectedChunk) return;
+    const index = chunks.findIndex((c) => c.id === selectedChunk.id);
+    if (index !== -1 && itemRefs.current[index]) {
+      itemRefs.current[index]?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest", // or "center"
+      });
+    }
+  }, [selectedChunk, chunks]);
+
   return (
     <div key={header}>
       <div className="flex flex-row justify-between">
@@ -70,8 +86,11 @@ export const SummarAIseSection = ({
         </IconButton>
       </div>
       <List>
-        {chunks.map((chunk) => (
+        {chunks.map((chunk, i) => (
           <motion.div
+            ref={(el) => {
+              itemRefs.current[i] = el;
+            }}
             key={chunk.id}
             animate={{
               border: "solid",
@@ -102,14 +121,14 @@ export const SummarAIseSection = ({
                     <IconButton
                       color="error"
                       disabled={rejectedChunks.includes(chunk.id)}
-                      onClick={() => acceptChunk(chunk.id)}
+                      onClick={() => rejectChunk(chunk.id)}
                     >
                       <Close />
                     </IconButton>
                     <IconButton
                       color="success"
                       disabled={acceptedChunks.includes(chunk.id)}
-                      onClick={() => rejectChunk(chunk.id)}
+                      onClick={() => acceptChunk(chunk.id)}
                     >
                       <Done />
                     </IconButton>
