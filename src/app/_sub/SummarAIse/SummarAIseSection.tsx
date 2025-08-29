@@ -84,8 +84,7 @@ export const SummarAIseSection = ({
                 "#ffffff00",
             }}
             className="relative"
-            onHoverStart={() => setSelectedChunk(chunk)}
-            onHoverEnd={() => setSelectedChunk(chunk)}
+            onClick={() => setSelectedChunk(chunk)}
           >
             <ListItem>{parseChunk(chunk.content)}</ListItem>
             <AnimatePresence>
