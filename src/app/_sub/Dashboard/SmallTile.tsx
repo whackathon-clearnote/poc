@@ -1,15 +1,18 @@
-import { Card, CardContent, Typography } from "@mui/material";
+import { Avatar, Card, CardContent, Typography } from "@mui/material";
 import { CommonProps } from "@mui/material/OverridableComponent";
 import { motion } from "motion/react";
+import { ReactNode } from "react";
 
 interface SmallTileProps extends CommonProps {
   statistic: string;
   title: string;
+  icon?: ReactNode;
 }
 
 export default function SmallTile({
   statistic,
   title,
+  icon,
   className,
 }: SmallTileProps) {
   return (
@@ -23,10 +26,18 @@ export default function SmallTile({
         transition: { duration: 0.5, ease: "easeInOut" },
       }}
     >
-      {/* backplate */}
-      <div className="absolute w-full h-full left-0 top-0 bg-gray-200" />
       <Card className="relative">
-        <CardContent className={className}>
+        <CardContent className={"relative " + className}>
+          {icon && (
+            <div className="absolute flex justify-center items-center top-0 right-0 p-2">
+              <Avatar
+                className="shadow-sm"
+                sx={{ bgcolor: "white", color: "darkgray" }}
+              >
+                {icon}
+              </Avatar>
+            </div>
+          )}
           <Typography variant="h3">{statistic}</Typography>
           <Typography variant="h6">{title}</Typography>
         </CardContent>
