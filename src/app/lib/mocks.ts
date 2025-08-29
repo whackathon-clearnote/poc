@@ -144,42 +144,48 @@ export const mockSummaries: { [id: number]: Summary } = {
   },
 };
 
-const terms: { [key: string]: Term } = {
+export const terms: { [key: string]: Term } = {
   amlodipine: {
     key: "amlodipine",
-    link: "https://en.wikipedia.org/wiki/Amlodipine",
+    link: "https://www.healthhub.sg/medication-devices-and-treatment/medications/amlodipine",
     description:
       "Calcium channel blocker medication used to treat high BP, CAD, and variant angina",
   },
   aspirin: {
     key: "aspirin",
-    link: "https://en.wikipedia.org/wiki/Aspirin",
+    link: "https://www.healthhub.sg/medication-devices-and-treatment/medications/aspirin",
     description:
       "NSAID used to reduce pain, fever, and inflammation; antithrombotic",
   },
   furosemide: {
-    key: "furosemide",
-    link: "https://en.wikipedia.org/wiki/Furosemide",
+    key: "frusemide",
+    link: "https://www.healthhub.sg/medication-devices-and-treatment/medications/frusemide",
     description:
       "Loop diuretic used to treat edema due to heart failure, liver scarring, or kidney disease",
   },
   metformin: {
     key: "metformin",
-    link: "https://en.wikipedia.org/wiki/Metformin",
+    link: "https://www.healthhub.sg/medication-devices-and-treatment/medications/metformin",
     description:
       "Main first-line medication for the treatment of type 2 diabetes",
   },
   diabetes: {
     key: "diabetes",
-    link: "https://en.wikipedia.org/wiki/Diabetes",
+    link: "https://www.healthhub.sg/health-conditions/pocket-guide-to-diabetes",
     description:
       "Chronic condition that affects the way the body metabolizes sugar (glucose)",
   },
   hypertension: {
     key: "hypertension",
-    link: "https://en.wikipedia.org/wiki/Hypertension",
+    link: "https://www.healthhub.sg/health-conditions/understanding-hypertension",
     description:
       "Condition in which the blood pressure in the arteries is persistently elevated",
+  },
+  lisinopril: {
+    key: "lisinopril",
+    link: "https://www.healthhub.sg/medication-devices-and-treatment/medications/lisinopril",
+    description:
+      "Lisinopril lowers blood pressure by reducing the production of a substance called Angiotensin II which causes the blood vessels to narrow",
   },
 };
 
